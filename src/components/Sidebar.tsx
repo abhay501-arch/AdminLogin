@@ -37,7 +37,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, onLogout
   };
 
   return (
-    <div className="w-64 bg-white h-full shadow-lg">
+    <div className="w-64 bg-white h-full shadow-lg flex flex-col">
       <div className="p-6 border-b">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-800">bedd.in Admin</h2>
@@ -50,7 +50,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, onLogout
         </div>
       </div>
 
-      <nav className="mt-6 px-4">
+      <nav className="flex-1 mt-6 px-4 overflow-y-auto">
         {menuItems.map((item) => {
           const IconComponent = item.icon;
           const isActive = currentPage === item.id;
@@ -74,7 +74,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, onLogout
         })}
       </nav>
 
-      <div className="absolute bottom-0 w-64 p-4 border-t">
+      <div className="p-4 border-t mt-auto">
         <button
           onClick={onLogout}
           className="w-full flex items-center px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors"

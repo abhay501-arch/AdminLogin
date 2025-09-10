@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { Search, Filter, Download, Upload, Eye, DollarSign, Calendar, User } from 'lucide-react';
+import { Search, Filter, Download, Upload, Eye, DollarSign, Calendar, User, X, Save } from 'lucide-react';
 
 const ReceiptDetails: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
 
   const payments = [
     {
@@ -89,15 +92,103 @@ const ReceiptDetails: React.FC = () => {
   const pendingAmount = filteredPayments.filter(p => p.status === 'pending').reduce((sum, payment) => sum + payment.amount, 0);
   const overdueAmount = filteredPayments.filter(p => p.status === 'overdue').reduce((sum, payment) => sum + payment.amount, 0);
 
+  const handleUploadReceipt = (studentName: string) => {
+    setSelectedStudent(studentName);
+    setShowUploadModal(true);
+  };
+
+  const handleFileUpload = () => {
+    if (uploadFile && selectedStudent) {
+      // In a real app, this would upload to server and link to student
+      console.log(`Uploading receipt for ${selectedStudent}:`, uploadFile.name);
+      setShowUploadModal(false);
+      setSelectedStudent(null);
+      setUploadFile(null);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && (file.type === 'application/pdf' || file.type.startsWith('image/'))) {
+      setUploadFile(file);
+    } else {
+      alert('Please select a PDF or image file (JPG, PNG)');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Receipt Details</h1>
-        <button className="mt-4 sm:mt-0 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-          <Upload className="w-4 h-4 inline mr-2" />
-          Upload Receipt
-        </button>
+        <div className="mt-4 sm:mt-0 text-sm text-gray-600">
+          Total Payments: {payments.length}
+        </div>
       </div>
+
+      {/* Upload Receipt Modal */}
+      {showUploadModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Upload Receipt</h2>
+              <button
+                onClick={() => setShowUploadModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Student: {selectedStudent}
+                </label>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Receipt File
+                </label>
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={handleFileChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Supported formats: PDF, JPG, PNG (Max 5MB)
+                </p>
+              </div>
+              
+              {uploadFile && (
+                <div className="p-3 bg-green-50 rounded-lg">
+                  <p className="text-sm text-green-700">
+                    Selected: {uploadFile.name} ({(uploadFile.size / 1024 / 1024).toFixed(2)} MB)
+                  </p>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex space-x-3 mt-6">
+              <button
+                onClick={handleFileUpload}
+                disabled={!uploadFile}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white py-2 px-4 rounded-lg font-medium transition-colors"
+              >
+                <Save className="w-4 h-4 inline mr-2" />
+                Upload Receipt
+              </button>
+              <button
+                onClick={() => setShowUploadModal(false)}
+                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -233,6 +324,13 @@ const ReceiptDetails: React.FC = () => {
                     <div className="flex space-x-2">
                       <button className="text-blue-600 hover:text-blue-900">
                         <Eye className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => handleUploadReceipt(payment.student)}
+                        className="text-green-600 hover:text-green-900"
+                        title="Upload Receipt"
+                      >
+                        <Upload className="w-4 h-4" />
                       </button>
                       {payment.receiptUrl && (
                         <button className="text-green-600 hover:text-green-900">

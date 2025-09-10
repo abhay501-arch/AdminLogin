@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, Clock, CheckCircle, User, Phone, MapPin, Calendar } from 'lucide-react';
+import { Search, Filter, Clock, CheckCircle, User, Phone, MapPin, Calendar, Printer } from 'lucide-react';
 
 const LaundryManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -107,12 +107,81 @@ const LaundryManagement: React.FC = () => {
     console.log(`Updating request ${requestId} to status: ${newStatus}`);
   };
 
+  const handlePrint = () => {
+    const printContent = `
+      <html>
+        <head>
+          <title>Laundry Requests Report</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1 { color: #1f2937; text-align: center; margin-bottom: 30px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #d1d5db; padding: 12px; text-align: left; }
+            th { background-color: #f3f4f6; font-weight: bold; }
+            .status-pending { color: #d97706; }
+            .status-in-progress { color: #2563eb; }
+            .status-completed { color: #059669; }
+            .print-date { text-align: center; margin-bottom: 20px; color: #6b7280; }
+          </style>
+        </head>
+        <body>
+          <h1>bedd.in - Laundry Requests Report</h1>
+          <div class="print-date">Generated on: ${new Date().toLocaleDateString()}</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Request ID</th>
+                <th>Student Name</th>
+                <th>Room Number</th>
+                <th>Date</th>
+                <th>Clothes Details</th>
+                <th>Status</th>
+                <th>Pickup Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filteredRequests.map(request => `
+                <tr>
+                  <td>${request.id}</td>
+                  <td>${request.student}</td>
+                  <td>${request.room}</td>
+                  <td>${request.date}</td>
+                  <td>${request.clothes.join(', ')}</td>
+                  <td class="status-${request.status}">${request.status.charAt(0).toUpperCase() + request.status.slice(1)}</td>
+                  <td>${request.pickupTime}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `;
+    
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Laundry Management</h1>
-        <div className="mt-4 sm:mt-0 text-sm text-gray-600">
-          Total Requests: {laundryRequests.length}
+        <div className="flex items-center space-x-3 mt-4 sm:mt-0">
+          <button
+            onClick={handlePrint}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          >
+            <Printer className="w-4 h-4 inline mr-2" />
+            Print Report
+          </button>
+          <div className="text-sm text-gray-600">
+            Total: {laundryRequests.length}
+          </div>
         </div>
       </div>
 

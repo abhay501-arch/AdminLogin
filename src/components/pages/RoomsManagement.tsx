@@ -1,9 +1,19 @@
 import React, { useState } from 'react';
-import { Search, Filter, Users, MapPin, Edit, Eye } from 'lucide-react';
+import { Search, Filter, Users, MapPin, Edit, Eye, Plus, X, Save } from 'lucide-react';
 
 const RoomsManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [showAddRoomModal, setShowAddRoomModal] = useState(false);
+  const [newRoom, setNewRoom] = useState({
+    roomNumber: '',
+    sharingType: 'triple',
+    capacity: 3,
+    currentOccupancy: 0,
+    status: 'available',
+    floor: 1,
+    rent: 8000
+  });
 
   const rooms = [
     {
@@ -84,14 +94,150 @@ const RoomsManagement: React.FC = () => {
     return matchesSearch && matchesFilter;
   });
 
+  const handleAddRoom = () => {
+    // In a real app, this would save to database
+    console.log('Adding new room:', newRoom);
+    setShowAddRoomModal(false);
+    setNewRoom({
+      roomNumber: '',
+      sharingType: 'triple',
+      capacity: 3,
+      currentOccupancy: 0,
+      status: 'available',
+      floor: 1,
+      rent: 8000
+    });
+  };
+
+  const handleSharingTypeChange = (type: string) => {
+    const capacityMap: { [key: string]: number } = {
+      single: 1,
+      double: 2,
+      triple: 3
+    };
+    setNewRoom({
+      ...newRoom,
+      sharingType: type,
+      capacity: capacityMap[type] || 3
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Rooms Management</h1>
-        <button className="mt-4 sm:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-          Add New Room
+        <button 
+          onClick={() => setShowAddRoomModal(true)}
+          className="mt-4 sm:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+        >
+          <Plus className="w-4 h-4 inline mr-2" />
+          Add Room
         </button>
       </div>
+
+      {/* Add Room Modal */}
+      {showAddRoomModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Add New Room</h2>
+              <button
+                onClick={() => setShowAddRoomModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Room Number
+                </label>
+                <input
+                  type="text"
+                  value={newRoom.roomNumber}
+                  onChange={(e) => setNewRoom({ ...newRoom, roomNumber: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., R301"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Sharing Type
+                </label>
+                <select
+                  value={newRoom.sharingType}
+                  onChange={(e) => handleSharingTypeChange(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="single">Single Sharing</option>
+                  <option value="double">Double Sharing</option>
+                  <option value="triple">Triple Sharing</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Floor
+                </label>
+                <input
+                  type="number"
+                  value={newRoom.floor}
+                  onChange={(e) => setNewRoom({ ...newRoom, floor: parseInt(e.target.value) })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  min="1"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Monthly Rent (₹)
+                </label>
+                <input
+                  type="number"
+                  value={newRoom.rent}
+                  onChange={(e) => setNewRoom({ ...newRoom, rent: parseInt(e.target.value) })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  min="0"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Status
+                </label>
+                <select
+                  value={newRoom.status}
+                  onChange={(e) => setNewRoom({ ...newRoom, status: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="available">Available</option>
+                  <option value="occupied">Occupied</option>
+                  <option value="maintenance">Under Maintenance</option>
+                </select>
+              </div>
+            </div>
+            
+            <div className="flex space-x-3 mt-6">
+              <button
+                onClick={handleAddRoom}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
+              >
+                <Save className="w-4 h-4 inline mr-2" />
+                Save Room
+              </button>
+              <button
+                onClick={() => setShowAddRoomModal(false)}
+                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Search and Filter */}
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
