@@ -1,132 +1,246 @@
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, Calendar } from 'lucide-react';
+import { Edit, Save, X } from 'lucide-react';
 
 const FoodManagement: React.FC = () => {
-  const [selectedDay, setSelectedDay] = useState('Monday');
   const [isEditing, setIsEditing] = useState(false);
+  const [showEntries, setShowEntries] = useState(10);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
-  const weeklyMenu = {
-    Monday: {
-      breakfast: ['Poha', 'Tea/Coffee', 'Banana'],
-      lunch: ['Rice', 'Dal', 'Mixed Vegetables', 'Chapati', 'Pickle'],
-      dinner: ['Jeera Rice', 'Rajma', 'Aloo Gobi', 'Chapati', 'Curd']
+  const [weeklyMenu, setWeeklyMenu] = useState([
+    {
+      sno: 1,
+      day: 'Sunday',
+      breakfast: 'ALOO KA PARATHA',
+      lunch: 'VEG BIRYANI / TEHRI + RAITA + ACHAR + SALAD',
+      dinner: 'MATAR PANEER / CHOLA + PURI + RICE + SWEET + ACHAR + SALAD'
     },
-    Tuesday: {
-      breakfast: ['Upma', 'Tea/Coffee', 'Boiled Egg'],
-      lunch: ['Rice', 'Sambar', 'Cabbage Curry', 'Chapati', 'Papad'],
-      dinner: ['Fried Rice', 'Paneer Curry', 'Dal', 'Chapati', 'Salad']
+    {
+      sno: 2,
+      day: 'Monday',
+      breakfast: 'FRIED+RICE+CHAI',
+      lunch: 'DAL+RICE+ROTI+DRY SEASONAL SABJI',
+      dinner: 'RICE+ROTI+ALOO MATAR SABJI'
     },
-    Wednesday: {
-      breakfast: ['Paratha', 'Curd', 'Tea/Coffee', 'Apple'],
-      lunch: ['Rice', 'Rasam', 'Bhindi', 'Chapati', 'Pickle'],
-      dinner: ['Plain Rice', 'Chicken Curry', 'Dal', 'Chapati', 'Onion']
+    {
+      sno: 3,
+      day: 'Tuesday',
+      breakfast: 'HALWA+CHANA+CHAI',
+      lunch: 'DAL+RICE+ROTI+SEASONAL DRY SABJI',
+      dinner: 'RICE+ROTI+RAAJMA'
     },
-    Thursday: {
-      breakfast: ['Idli/Dosa', 'Sambar', 'Chutney', 'Tea/Coffee'],
-      lunch: ['Rice', 'Dal', 'Cauliflower', 'Chapati', 'Buttermilk'],
-      dinner: ['Biryani', 'Raita', 'Pickle', 'Boiled Egg']
+    {
+      sno: 4,
+      day: 'Wednesday',
+      breakfast: 'POORI+SABJI+CHAI',
+      lunch: 'DAL+RICE+ROTI+SEASONAL DRY SABJI',
+      dinner: 'RICE+ROTI+SOYABEAN SABJI'
     },
-    Friday: {
-      breakfast: ['Sandwich', 'Tea/Coffee', 'Orange'],
-      lunch: ['Rice', 'Fish Curry', 'Beans', 'Chapati', 'Dal'],
-      dinner: ['Rice', 'Mixed Dal', 'Palak Paneer', 'Chapati', 'Curd']
+    {
+      sno: 5,
+      day: 'Thursday',
+      breakfast: 'SANDWITCH-2+CHAI',
+      lunch: 'KADHI+RICE+ROTI',
+      dinner: 'RICE+ROTI+DAL+MIXEDVEG SABJI'
     },
-    Saturday: {
-      breakfast: ['Puri Bhaji', 'Tea/Coffee', 'Banana'],
-      lunch: ['Rice', 'Chole', 'Aloo Jeera', 'Chapati', 'Pickle'],
-      dinner: ['Pulao', 'Paneer Butter Masala', 'Dal', 'Naan', 'Salad']
+    {
+      sno: 6,
+      day: 'Friday',
+      breakfast: 'POHA NAMKEEN+CHAI',
+      lunch: 'DAL+RICE+ROTI+SEASONAL DRY SABJI',
+      dinner: 'RICE+ROTI+SAFED MATAR SABJI'
     },
-    Sunday: {
-      breakfast: ['Chole Bhature', 'Tea/Coffee', 'Lassi'],
-      lunch: ['Rice', 'Mutton Curry', 'Mixed Vegetables', 'Chapati', 'Papad'],
-      dinner: ['Rice', 'Dal Makhani', 'Aloo Matar', 'Chapati', 'Ice Cream']
+    {
+      sno: 7,
+      day: 'Saturday',
+      breakfast: 'CHAWMEIN+CHAI',
+      lunch: 'DAL+RICE+ROTI+SEASONAL DRY SABJI',
+      dinner: 'ROTI+RICE+GRAVY KOFTA'
     }
+  ]);
+
+  const handleSaveChanges = () => {
+    // In a real app, this would save to database and update student dashboards
+    setIsEditing(false);
+    console.log('Menu updated:', weeklyMenu);
+    // Simulate API call to update student dashboards
+    alert('Menu updated successfully! Changes will reflect in student dashboards.');
   };
 
-  const currentDayMenu = weeklyMenu[selectedDay as keyof typeof weeklyMenu];
+  const handleMenuChange = (index: number, field: string, value: string) => {
+    const updatedMenu = [...weeklyMenu];
+    updatedMenu[index] = { ...updatedMenu[index], [field]: value };
+    setWeeklyMenu(updatedMenu);
+  };
+
+  const filteredMenu = weeklyMenu.filter(item => 
+    item.day.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.breakfast.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.lunch.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.dinner.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const displayedMenu = filteredMenu.slice(0, showEntries);
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Food Management</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Food Menu</h1>
         <div className="flex space-x-2 mt-4 sm:mt-0">
-          <button
-            onClick={() => setIsEditing(!isEditing)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-          >
-            <Edit className="w-4 h-4 inline mr-2" />
-            {isEditing ? 'Save Changes' : 'Edit Menu'}
-          </button>
-          <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-            <Plus className="w-4 h-4 inline mr-2" />
-            Add Special Menu
-          </button>
-        </div>
-      </div>
-
-      {/* Day Selector */}
-      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-        <div className="flex items-center space-x-2 mb-4">
-          <Calendar className="w-5 h-5 text-gray-400" />
-          <h2 className="text-lg font-semibold text-gray-900">Weekly Menu</h2>
-        </div>
-        <div className="grid grid-cols-3 md:grid-cols-7 gap-2">
-          {daysOfWeek.map((day) => (
+          {isEditing ? (
+            <>
+              <button
+                onClick={handleSaveChanges}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                <Save className="w-4 h-4 inline mr-2" />
+                Save Changes
+              </button>
+              <button
+                onClick={() => setIsEditing(false)}
+                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                <X className="w-4 h-4 inline mr-2" />
+                Cancel
+              </button>
+            </>
+          ) : (
             <button
-              key={day}
-              onClick={() => setSelectedDay(day)}
-              className={`p-3 text-center rounded-lg transition-colors ${
-                selectedDay === day
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              onClick={() => setIsEditing(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
             >
-              <div className="font-medium text-sm">{day}</div>
+              <Edit className="w-4 h-4 inline mr-2" />
+              Edit Menu
             </button>
-          ))}
+          )}
         </div>
       </div>
 
-      {/* Menu for Selected Day */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {['breakfast', 'lunch', 'dinner'].map((meal) => (
-          <div key={meal} className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 capitalize">{meal}</h3>
-              <div className="text-sm text-gray-500">{selectedDay}</div>
+      {/* Food Menu Table */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="p-6 border-b border-gray-200">
+          <div className="bg-gray-100 px-4 py-2 rounded-lg mb-4">
+            <h2 className="text-lg font-medium text-gray-700">ALL FOODS DETAILS</h2>
+          </div>
+          
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-600">Show</span>
+              <select
+                value={showEntries}
+                onChange={(e) => setShowEntries(Number(e.target.value))}
+                className="border border-gray-300 rounded px-3 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+              <span className="text-sm text-gray-600">entries</span>
             </div>
             
-            <div className="space-y-3">
-              {currentDayMenu[meal as keyof typeof currentDayMenu].map((item, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={item}
-                      className="flex-1 bg-white border border-gray-300 rounded px-3 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  ) : (
-                    <span className="text-gray-700">{item}</span>
-                  )}
-                  {isEditing && (
-                    <button className="ml-2 text-red-600 hover:text-red-700">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              ))}
-              
-              {isEditing && (
-                <button className="w-full p-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-500 hover:text-blue-600 transition-colors">
-                  <Plus className="w-4 h-4 inline mr-2" />
-                  Add Item
-                </button>
-              )}
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-600">Search:</span>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="border border-gray-300 rounded px-3 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Search menu..."
+              />
             </div>
           </div>
-        ))}
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">
+                  Sno. ↕
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">
+                  Day ↕
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">
+                  (Breakfast 08 To 09 AM) ↕
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">
+                  (Lunch 12 TO 02 PM) ↕
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  (Dinner 08 TO 09 PM) ↕
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {displayedMenu.map((item, index) => (
+                <tr key={item.sno} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                    {item.sno}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                    {item.day}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
+                    {isEditing ? (
+                      <textarea
+                        value={item.breakfast}
+                        onChange={(e) => handleMenuChange(index, 'breakfast', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                        rows={2}
+                      />
+                    ) : (
+                      <div className="max-w-xs">{item.breakfast}</div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
+                    {isEditing ? (
+                      <textarea
+                        value={item.lunch}
+                        onChange={(e) => handleMenuChange(index, 'lunch', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                        rows={2}
+                      />
+                    ) : (
+                      <div className="max-w-xs">{item.lunch}</div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-900">
+                    {isEditing ? (
+                      <textarea
+                        value={item.dinner}
+                        onChange={(e) => handleMenuChange(index, 'dinner', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                        rows={2}
+                      />
+                    ) : (
+                      <div className="max-w-xs">{item.dinner}</div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-700">
+              Showing 1 to {Math.min(showEntries, filteredMenu.length)} of {filteredMenu.length} entries
+            </div>
+            <div className="flex items-center space-x-2">
+              <button className="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50">
+                Previous
+              </button>
+              <button className="px-3 py-1 text-sm text-white bg-blue-600 border border-blue-600 rounded">
+                1
+              </button>
+              <button className="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50">
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Menu Statistics */}

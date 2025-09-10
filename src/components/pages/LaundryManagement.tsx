@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Search, Filter, Clock, CheckCircle, User, Phone, MapPin, Calendar, Printer } from 'lucide-react';
+import { Search, Filter, Clock, CheckCircle, User, Phone, MapPin, Calendar, Printer, X } from 'lucide-react';
 
 const LaundryManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [showPrintPreview, setShowPrintPreview] = useState(false);
 
   const laundryRequests = [
     {
@@ -108,63 +109,11 @@ const LaundryManagement: React.FC = () => {
   };
 
   const handlePrint = () => {
-    const printContent = `
-      <html>
-        <head>
-          <title>Laundry Requests Report</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            h1 { color: #1f2937; text-align: center; margin-bottom: 30px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #d1d5db; padding: 12px; text-align: left; }
-            th { background-color: #f3f4f6; font-weight: bold; }
-            .status-pending { color: #d97706; }
-            .status-in-progress { color: #2563eb; }
-            .status-completed { color: #059669; }
-            .print-date { text-align: center; margin-bottom: 20px; color: #6b7280; }
-          </style>
-        </head>
-        <body>
-          <h1>bedd.in - Laundry Requests Report</h1>
-          <div class="print-date">Generated on: ${new Date().toLocaleDateString()}</div>
-          <table>
-            <thead>
-              <tr>
-                <th>Request ID</th>
-                <th>Student Name</th>
-                <th>Room Number</th>
-                <th>Date</th>
-                <th>Clothes Details</th>
-                <th>Status</th>
-                <th>Pickup Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${filteredRequests.map(request => `
-                <tr>
-                  <td>${request.id}</td>
-                  <td>${request.student}</td>
-                  <td>${request.room}</td>
-                  <td>${request.date}</td>
-                  <td>${request.clothes.join(', ')}</td>
-                  <td class="status-${request.status}">${request.status.charAt(0).toUpperCase() + request.status.slice(1)}</td>
-                  <td>${request.pickupTime}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </body>
-      </html>
-    `;
-    
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(printContent);
-      printWindow.document.close();
-      printWindow.focus();
-      printWindow.print();
-      printWindow.close();
-    }
+    setShowPrintPreview(true);
+  };
+
+  const handleActualPrint = () => {
+    window.print();
   };
 
   return (
@@ -177,13 +126,87 @@ const LaundryManagement: React.FC = () => {
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
           >
             <Printer className="w-4 h-4 inline mr-2" />
-            Print Report
+            Print Preview
           </button>
           <div className="text-sm text-gray-600">
             Total: {laundryRequests.length}
           </div>
         </div>
       </div>
+
+      {/* Print Preview Modal */}
+      {showPrintPreview && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-6xl max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">Print Preview - Laundry Requests Report</h2>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={handleActualPrint}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                >
+                  <Printer className="w-4 h-4 inline mr-2" />
+                  Print
+                </button>
+                <button
+                  onClick={() => setShowPrintPreview(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+              <div className="print-content bg-white">
+                <div className="text-center mb-6">
+                  <h1 className="text-2xl font-bold text-gray-900 mb-2">bedd.in - Laundry Requests Report</h1>
+                  <p className="text-gray-600">Generated on: {new Date().toLocaleDateString()}</p>
+                </div>
+                
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse border border-gray-300">
+                    <thead>
+                      <tr className="bg-gray-100">
+                        <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">Request ID</th>
+                        <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">Student Name</th>
+                        <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">Room No.</th>
+                        <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">Request Date</th>
+                        <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">Clothes</th>
+                        <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">Status</th>
+                        <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">Pickup Time</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredRequests.map((request, index) => (
+                        <tr key={request.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                          <td className="border border-gray-300 px-4 py-3 text-gray-900">{request.id}</td>
+                          <td className="border border-gray-300 px-4 py-3 text-gray-900">{request.student}</td>
+                          <td className="border border-gray-300 px-4 py-3 text-gray-900">{request.room}</td>
+                          <td className="border border-gray-300 px-4 py-3 text-gray-900">{request.date}</td>
+                          <td className="border border-gray-300 px-4 py-3 text-gray-900">{request.clothes.join(', ')}</td>
+                          <td className={`border border-gray-300 px-4 py-3 font-medium ${
+                            request.status === 'completed' ? 'text-green-600' :
+                            request.status === 'in-progress' ? 'text-blue-600' : 'text-yellow-600'
+                          }`}>
+                            {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                          </td>
+                          <td className="border border-gray-300 px-4 py-3 text-gray-900">{request.pickupTime}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                
+                <div className="mt-6 text-center text-sm text-gray-600">
+                  <p>Total Requests: {filteredRequests.length}</p>
+                  <p>Report generated by bedd.in Admin Dashboard</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -357,5 +380,38 @@ const LaundryManagement: React.FC = () => {
     </div>
   );
 };
+
+// Print styles
+const printStyles = `
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    .print-content, .print-content * {
+      visibility: visible;
+    }
+    .print-content {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+    }
+    table {
+      page-break-inside: auto;
+    }
+    tr {
+      page-break-inside: avoid;
+      page-break-after: auto;
+    }
+  }
+`;
+
+// Inject print styles
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement('style');
+  styleSheet.type = 'text/css';
+  styleSheet.innerText = printStyles;
+  document.head.appendChild(styleSheet);
+}
 
 export default LaundryManagement;
