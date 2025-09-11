@@ -104,7 +104,11 @@ const LaundryManagement: React.FC = () => {
   });
 
   const handleStatusUpdate = (requestId: string, newStatus: string) => {
-    // In a real app, this would update the database
+    setLaundryRequests(laundryRequests.map(request => 
+      request.id === requestId 
+        ? { ...request, status: newStatus }
+        : request
+    ));
     console.log(`Updating request ${requestId} to status: ${newStatus}`);
   };
 

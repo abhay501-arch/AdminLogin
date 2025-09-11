@@ -117,7 +117,11 @@ const Complaints: React.FC = () => {
   });
 
   const handleStatusUpdate = (complaintId: string, newStatus: string) => {
-    // In a real app, this would update the database
+    setComplaints(complaints.map(complaint => 
+      complaint.id === complaintId 
+        ? { ...complaint, status: newStatus }
+        : complaint
+    ));
     console.log(`Updating complaint ${complaintId} to status: ${newStatus}`);
   };
 

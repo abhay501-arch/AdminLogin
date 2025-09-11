@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, Edit, Eye, Trash2, User, Phone, MapPin, X, Save } from 'lucide-react';
+import { Search, Filter, Edit, Eye, Trash2, User, Phone, MapPin, X, Save, Mail, Calendar, Book, FileText, MessageSquare, Shirt } from 'lucide-react';
 
 const ManageUsers: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,6 +18,15 @@ const ManageUsers: React.FC = () => {
       phone: '+91 9876543210',
       room: 'R101',
       course: 'B.Tech CSE',
+      fatherName: 'Mr. Suresh Kumar',
+      address: '123 Main Street, Delhi',
+      dateOfBirth: '1999-05-15',
+      college: 'IIT Delhi',
+      receiptsUploaded: 3,
+      complaintsMade: 1,
+      laundryRequests: 5,
+      bloodGroup: 'O+',
+      emergencyContact: '+91 9876543211',
       institute: 'IIT Delhi',
       joinDate: '2024-01-15',
       stayPeriod: '2 years',
@@ -35,6 +44,15 @@ const ManageUsers: React.FC = () => {
       phone: '+91 9876543211',
       room: 'R102',
       course: 'MBA',
+      fatherName: 'Mr. Rajesh Sharma',
+      address: '456 Park Avenue, Bangalore',
+      dateOfBirth: '1998-08-22',
+      college: 'IIM Bangalore',
+      receiptsUploaded: 2,
+      complaintsMade: 0,
+      laundryRequests: 3,
+      bloodGroup: 'A+',
+      emergencyContact: '+91 9876543212',
       institute: 'IIM Bangalore',
       joinDate: '2024-01-10',
       stayPeriod: '1 year',
@@ -52,6 +70,15 @@ const ManageUsers: React.FC = () => {
       phone: '+91 9876543212',
       room: 'R101',
       course: 'M.Tech',
+      fatherName: 'Mrs. Sunita Singh',
+      address: '789 College Road, Warangal',
+      dateOfBirth: '1997-12-10',
+      college: 'NIT Warangal',
+      receiptsUploaded: 4,
+      complaintsMade: 2,
+      laundryRequests: 7,
+      bloodGroup: 'B+',
+      emergencyContact: '+91 9876543213',
       institute: 'NIT Warangal',
       joinDate: '2023-12-01',
       stayPeriod: '2 years',
@@ -69,6 +96,15 @@ const ManageUsers: React.FC = () => {
       phone: '+91 9876543213',
       room: 'R102',
       course: 'BBA',
+      fatherName: 'Mr. Kiran Patel',
+      address: '321 University Lane, Delhi',
+      dateOfBirth: '2000-03-18',
+      college: 'Delhi University',
+      receiptsUploaded: 1,
+      complaintsMade: 0,
+      laundryRequests: 2,
+      bloodGroup: 'AB+',
+      emergencyContact: '+91 9876543214',
       institute: 'Delhi University',
       joinDate: '2024-01-05',
       stayPeriod: '6 months',
@@ -86,6 +122,15 @@ const ManageUsers: React.FC = () => {
       phone: '+91 9876543214',
       room: 'R101',
       course: 'CA',
+      fatherName: 'Mrs. Kavita Gupta',
+      address: '654 Business District, Mumbai',
+      dateOfBirth: '1999-11-25',
+      college: 'ICAI',
+      receiptsUploaded: 2,
+      complaintsMade: 1,
+      laundryRequests: 4,
+      bloodGroup: 'O-',
+      emergencyContact: '+91 9876543215',
       institute: 'ICAI',
       joinDate: '2023-11-20',
       stayPeriod: '1 year',
@@ -197,6 +242,18 @@ const ManageUsers: React.FC = () => {
                       <p className="text-gray-900">{selectedStudent.email}</p>
                     </div>
                     <div>
+                      <label className="text-sm font-medium text-gray-600">Father's Name</label>
+                      <p className="text-gray-900">{selectedStudent.fatherName}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Date of Birth</label>
+                      <p className="text-gray-900">{selectedStudent.dateOfBirth}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Blood Group</label>
+                      <p className="text-gray-900">{selectedStudent.bloodGroup}</p>
+                    </div>
+                    <div>
                       <label className="text-sm font-medium text-gray-600">Phone</label>
                       <p className="text-gray-900">{selectedStudent.phone}</p>
                     </div>
@@ -209,12 +266,37 @@ const ManageUsers: React.FC = () => {
                       <p className="text-gray-900">{selectedStudent.emergencyContact}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Parent/Guardian</label>
-                      <p className="text-gray-900">{selectedStudent.parentName}</p>
+                      <label className="text-sm font-medium text-gray-600">Address</label>
+                      <p className="text-gray-900">{selectedStudent.address}</p>
                     </div>
                   </div>
                 </div>
+              </div>
 
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-4">Activity Summary</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <FileText className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+                    <p className="text-lg font-bold text-blue-600">{selectedStudent.receiptsUploaded}</p>
+                    <p className="text-sm text-gray-600">Receipts Uploaded</p>
+                  </div>
+                  <div className="text-center p-4 bg-orange-50 rounded-lg">
+                    <MessageSquare className="w-6 h-6 text-orange-600 mx-auto mb-2" />
+                    <p className="text-lg font-bold text-orange-600">{selectedStudent.complaintsMade}</p>
+                    <p className="text-sm text-gray-600">Complaints Made</p>
+                  </div>
+                  <div className="text-center p-4 bg-purple-50 rounded-lg">
+                    <Shirt className="w-6 h-6 text-purple-600 mx-auto mb-2" />
+                    <p className="text-lg font-bold text-purple-600">{selectedStudent.laundryRequests}</p>
+                    <p className="text-sm text-gray-600">Laundry Requests</p>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <Calendar className="w-6 h-6 text-green-600 mx-auto mb-2" />
+                    <p className="text-lg font-bold text-green-600">{selectedStudent.stayPeriod}</p>
+                    <p className="text-sm text-gray-600">Stay Period</p>
+                  </div>
+                </div>
                 <div className="space-y-4">
                   <h4 className="font-semibold text-gray-900">Academic & Hostel Details</h4>
                   <div className="space-y-3">
@@ -223,12 +305,12 @@ const ManageUsers: React.FC = () => {
                       <p className="text-gray-900">{selectedStudent.room}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Course</label>
-                      <p className="text-gray-900">{selectedStudent.course}</p>
+                      <label className="text-sm font-medium text-gray-600">College/Institute</label>
+                      <p className="text-gray-900">{selectedStudent.college}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Institute</label>
-                      <p className="text-gray-900">{selectedStudent.institute}</p>
+                      <label className="text-sm font-medium text-gray-600">Course</label>
+                      <p className="text-gray-900">{selectedStudent.course}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-600">Join Date</label>
