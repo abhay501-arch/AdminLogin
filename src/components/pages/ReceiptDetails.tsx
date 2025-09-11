@@ -1,138 +1,166 @@
 import React, { useState } from 'react';
-import { Search, Filter, Download, Upload, Eye, DollarSign, Calendar, User, X, Save } from 'lucide-react';
+import { Search, Filter, Download, Eye, DollarSign, Calendar, User, X, CheckCircle, XCircle, FileText, Phone, MapPin, CreditCard } from 'lucide-react';
 
 const ReceiptDetails: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-  const [showUploadModal, setShowUploadModal] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
 
-  const payments = [
+  const [receipts, setReceipts] = useState([
     {
-      id: 'PAY001',
+      id: 'REC001',
       student: 'Rahul Kumar',
-      room: 'R101',
-      amount: 8000,
-      type: 'Room Rent',
-      status: 'paid',
-      date: '2024-01-15',
-      dueDate: '2024-01-01',
-      receiptUrl: '#'
-    },
-    {
-      id: 'PAY002',
-      student: 'Priya Sharma',
-      room: 'R102',
-      amount: 4500,
-      type: 'Mess Fee',
-      status: 'paid',
-      date: '2024-01-14',
-      dueDate: '2024-01-01',
-      receiptUrl: '#'
-    },
-    {
-      id: 'PAY003',
-      student: 'Amit Singh',
+      studentId: 'STU001',
+      email: 'rahul.kumar@email.com',
+      phone: '+91 9876543210',
       room: 'R101',
       amount: 8000,
       type: 'Room Rent',
       status: 'pending',
-      date: null,
-      dueDate: '2024-02-01',
-      receiptUrl: null
+      uploadDate: '2024-01-15',
+      uploadTime: '10:30 AM',
+      utrId: 'UTR123456789',
+      receiptUrl: '#',
+      receiptType: 'image'
     },
     {
-      id: 'PAY004',
-      student: 'Neha Patel',
+      id: 'REC002',
+      student: 'Priya Sharma',
+      studentId: 'STU002',
+      email: 'priya.sharma@email.com',
+      phone: '+91 9876543211',
       room: 'R102',
+      amount: 4500,
+      type: 'Mess Fee',
+      status: 'verified',
+      uploadDate: '2024-01-14',
+      uploadTime: '2:15 PM',
+      utrId: 'UTR987654321',
+      receiptUrl: '#',
+      receiptType: 'pdf'
+    },
+    {
+      id: 'REC003',
+      student: 'Amit Singh',
+      studentId: 'STU003',
+      email: 'amit.singh@email.com',
+      phone: '+91 9876543212',
+      room: 'R101',
       amount: 500,
       type: 'Laundry',
-      status: 'overdue',
-      date: null,
-      dueDate: '2024-01-20',
-      receiptUrl: null
+      status: 'rejected',
+      uploadDate: '2024-01-13',
+      uploadTime: '4:45 PM',
+      utrId: 'UTR456789123',
+      receiptUrl: '#',
+      receiptType: 'image'
     },
     {
-      id: 'PAY005',
+      id: 'REC004',
+      student: 'Neha Patel',
+      studentId: 'STU004',
+      email: 'neha.patel@email.com',
+      phone: '+91 9876543213',
+      room: 'R102',
+      amount: 8000,
+      type: 'Room Rent',
+      status: 'pending',
+      uploadDate: '2024-01-16',
+      uploadTime: '11:20 AM',
+      utrId: 'UTR789123456',
+      receiptUrl: '#',
+      receiptType: 'pdf'
+    },
+    {
+      id: 'REC005',
       student: 'Vikram Gupta',
+      studentId: 'STU005',
+      email: 'vikram.gupta@email.com',
+      phone: '+91 9876543214',
       room: 'R101',
       amount: 4500,
       type: 'Mess Fee',
-      status: 'paid',
-      date: '2024-01-10',
-      dueDate: '2024-01-01',
-      receiptUrl: '#'
+      status: 'verified',
+      uploadDate: '2024-01-12',
+      uploadTime: '9:10 AM',
+      utrId: 'UTR321654987',
+      receiptUrl: '#',
+      receiptType: 'image'
     },
-  ];
+  ]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'paid':
+      case 'verified':
         return 'bg-green-100 text-green-800';
       case 'pending':
         return 'bg-yellow-100 text-yellow-800';
-      case 'overdue':
+      case 'rejected':
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const filteredPayments = payments.filter(payment => {
-    const matchesSearch = payment.student.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         payment.room.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         payment.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || payment.status === filterStatus;
+  const filteredReceipts = receipts.filter(receipt => {
+    const matchesSearch = receipt.student.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         receipt.room.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         receipt.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         receipt.utrId.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = filterStatus === 'all' || receipt.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
 
-  const totalAmount = filteredPayments.reduce((sum, payment) => sum + payment.amount, 0);
-  const paidAmount = filteredPayments.filter(p => p.status === 'paid').reduce((sum, payment) => sum + payment.amount, 0);
-  const pendingAmount = filteredPayments.filter(p => p.status === 'pending').reduce((sum, payment) => sum + payment.amount, 0);
-  const overdueAmount = filteredPayments.filter(p => p.status === 'overdue').reduce((sum, payment) => sum + payment.amount, 0);
-
-  const handleUploadReceipt = (studentName: string) => {
-    setSelectedStudent(studentName);
-    setShowUploadModal(true);
+  const handleVerifyReceipt = (receiptId: string) => {
+    setReceipts(receipts.map(receipt => 
+      receipt.id === receiptId 
+        ? { ...receipt, status: 'verified' }
+        : receipt
+    ));
   };
 
-  const handleFileUpload = () => {
-    if (uploadFile && selectedStudent) {
-      // In a real app, this would upload to server and link to student
-      console.log(`Uploading receipt for ${selectedStudent}:`, uploadFile.name);
-      setShowUploadModal(false);
-      setSelectedStudent(null);
-      setUploadFile(null);
-    }
+  const handleRejectReceipt = (receiptId: string) => {
+    setReceipts(receipts.map(receipt => 
+      receipt.id === receiptId 
+        ? { ...receipt, status: 'rejected' }
+        : receipt
+    ));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && (file.type === 'application/pdf' || file.type.startsWith('image/'))) {
-      setUploadFile(file);
-    } else {
-      alert('Please select a PDF or image file (JPG, PNG)');
-    }
+  const handleViewReceipt = (receipt: any) => {
+    setSelectedReceipt(receipt);
+    setShowReceiptModal(true);
   };
+
+  const handleViewDetails = (receipt: any) => {
+    setSelectedReceipt(receipt);
+    setShowDetailsModal(true);
+  };
+
+  const totalAmount = filteredReceipts.reduce((sum, receipt) => sum + receipt.amount, 0);
+  const verifiedAmount = filteredReceipts.filter(r => r.status === 'verified').reduce((sum, receipt) => sum + receipt.amount, 0);
+  const pendingAmount = filteredReceipts.filter(r => r.status === 'pending').reduce((sum, receipt) => sum + receipt.amount, 0);
+  const rejectedAmount = filteredReceipts.filter(r => r.status === 'rejected').reduce((sum, receipt) => sum + receipt.amount, 0);
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Receipt Details</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Receipt Verification</h1>
         <div className="mt-4 sm:mt-0 text-sm text-gray-600">
-          Total Payments: {payments.length}
+          Total Receipts: {receipts.length}
         </div>
       </div>
 
-      {/* Upload Receipt Modal */}
-      {showUploadModal && (
+      {/* Receipt View Modal */}
+      {showReceiptModal && selectedReceipt && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-900">Upload Receipt</h2>
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Receipt Preview</h2>
               <button
-                onClick={() => setShowUploadModal(false)}
+                onClick={() => setShowReceiptModal(false)}
                 className="text-gray-400 hover:text-gray-600"
               >
                 <X className="w-6 h-6" />
@@ -140,51 +168,150 @@ const ReceiptDetails: React.FC = () => {
             </div>
             
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Student: {selectedStudent}
-                </label>
+              <div className="text-center">
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{selectedReceipt.id}</h3>
+                <p className="text-gray-600">Uploaded by: {selectedReceipt.student}</p>
               </div>
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Receipt File
-                </label>
-                <input
-                  type="file"
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  onChange={handleFileChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Supported formats: PDF, JPG, PNG (Max 5MB)
-                </p>
-              </div>
-              
-              {uploadFile && (
-                <div className="p-3 bg-green-50 rounded-lg">
-                  <p className="text-sm text-green-700">
-                    Selected: {uploadFile.name} ({(uploadFile.size / 1024 / 1024).toFixed(2)} MB)
+              {selectedReceipt.receiptType === 'image' ? (
+                <div className="bg-gray-100 rounded-lg p-8 text-center">
+                  <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">Receipt Image Preview</p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    In a real application, the actual receipt image would be displayed here
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-red-50 rounded-lg p-8 text-center">
+                  <FileText className="w-16 h-16 text-red-400 mx-auto mb-4" />
+                  <p className="text-red-600">PDF Receipt</p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    In a real application, the PDF would be embedded or downloadable here
                   </p>
                 </div>
               )}
+              
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => window.open(selectedReceipt.receiptUrl, '_blank')}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
+                >
+                  <Download className="w-4 h-4 inline mr-2" />
+                  Download Receipt
+                </button>
+                <button
+                  onClick={() => setShowReceiptModal(false)}
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Receipt Details Modal */}
+      {showDetailsModal && selectedReceipt && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Receipt Details</h2>
+              <button
+                onClick={() => setShowDetailsModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
             </div>
             
-            <div className="flex space-x-3 mt-6">
-              <button
-                onClick={handleFileUpload}
-                disabled={!uploadFile}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white py-2 px-4 rounded-lg font-medium transition-colors"
-              >
-                <Save className="w-4 h-4 inline mr-2" />
-                Upload Receipt
-              </button>
-              <button
-                onClick={() => setShowUploadModal(false)}
-                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
-              >
-                Cancel
-              </button>
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-gray-900">Student Information</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Name</label>
+                      <p className="text-gray-900">{selectedReceipt.student}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Student ID</label>
+                      <p className="text-gray-900">{selectedReceipt.studentId}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Email</label>
+                      <p className="text-gray-900 flex items-center">
+                        <User className="w-4 h-4 mr-2 text-gray-400" />
+                        {selectedReceipt.email}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Phone</label>
+                      <p className="text-gray-900 flex items-center">
+                        <Phone className="w-4 h-4 mr-2 text-gray-400" />
+                        {selectedReceipt.phone}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Room</label>
+                      <p className="text-gray-900 flex items-center">
+                        <MapPin className="w-4 h-4 mr-2 text-gray-400" />
+                        {selectedReceipt.room}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-gray-900">Payment Details</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Receipt ID</label>
+                      <p className="text-gray-900">{selectedReceipt.id}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Amount</label>
+                      <p className="text-gray-900 flex items-center">
+                        <DollarSign className="w-4 h-4 mr-2 text-gray-400" />
+                        ₹{selectedReceipt.amount.toLocaleString()}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Payment Type</label>
+                      <p className="text-gray-900">{selectedReceipt.type}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">UTR ID</label>
+                      <p className="text-gray-900 flex items-center">
+                        <CreditCard className="w-4 h-4 mr-2 text-gray-400" />
+                        {selectedReceipt.utrId}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Upload Date & Time</label>
+                      <p className="text-gray-900 flex items-center">
+                        <Calendar className="w-4 h-4 mr-2 text-gray-400" />
+                        {selectedReceipt.uploadDate} at {selectedReceipt.uploadTime}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Status</label>
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedReceipt.status)}`}>
+                        {selectedReceipt.status.charAt(0).toUpperCase() + selectedReceipt.status.slice(1)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex space-x-3 pt-4 border-t">
+                <button
+                  onClick={() => setShowDetailsModal(false)}
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -204,11 +331,11 @@ const ReceiptDetails: React.FC = () => {
         <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Paid</p>
-              <p className="text-2xl font-bold text-green-600">₹{paidAmount.toLocaleString()}</p>
+              <p className="text-sm font-medium text-gray-600">Verified</p>
+              <p className="text-2xl font-bold text-green-600">₹{verifiedAmount.toLocaleString()}</p>
             </div>
             <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-              <DollarSign className="w-4 h-4 text-green-600" />
+              <CheckCircle className="w-4 h-4 text-green-600" />
             </div>
           </div>
         </div>
@@ -226,11 +353,11 @@ const ReceiptDetails: React.FC = () => {
         <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Overdue</p>
-              <p className="text-2xl font-bold text-red-600">₹{overdueAmount.toLocaleString()}</p>
+              <p className="text-sm font-medium text-gray-600">Rejected</p>
+              <p className="text-2xl font-bold text-red-600">₹{rejectedAmount.toLocaleString()}</p>
             </div>
             <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-              <DollarSign className="w-4 h-4 text-red-600" />
+              <XCircle className="w-4 h-4 text-red-600" />
             </div>
           </div>
         </div>
@@ -243,7 +370,7 @@ const ReceiptDetails: React.FC = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Search by student name, room, or payment ID..."
+              placeholder="Search by student name, room, receipt ID, or UTR ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -257,93 +384,98 @@ const ReceiptDetails: React.FC = () => {
               className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="all">All Status</option>
-              <option value="paid">Paid</option>
               <option value="pending">Pending</option>
-              <option value="overdue">Overdue</option>
+              <option value="verified">Verified</option>
+              <option value="rejected">Rejected</option>
             </select>
           </div>
         </div>
       </div>
 
-      {/* Payments Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Payment Details
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Student
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Amount
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Due Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredPayments.map((payment) => (
-                <tr key={payment.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{payment.id}</div>
-                      <div className="text-sm text-gray-500">{payment.type}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <User className="w-5 h-5 text-gray-400 mr-2" />
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">{payment.student}</div>
-                        <div className="text-sm text-gray-500">Room {payment.room}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">₹{payment.amount.toLocaleString()}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(payment.status)}`}>
-                      {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {payment.dueDate}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button className="text-blue-600 hover:text-blue-900">
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button 
-                        onClick={() => handleUploadReceipt(payment.student)}
-                        className="text-green-600 hover:text-green-900"
-                        title="Upload Receipt"
-                      >
-                        <Upload className="w-4 h-4" />
-                      </button>
-                      {payment.receiptUrl && (
-                        <button className="text-green-600 hover:text-green-900">
-                          <Download className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {/* Receipts Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredReceipts.map((receipt) => (
+          <div key={receipt.id} className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">{receipt.id}</h3>
+                  <p className="text-sm text-gray-500">{receipt.uploadDate} at {receipt.uploadTime}</p>
+                </div>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(receipt.status)}`}>
+                  {receipt.status.charAt(0).toUpperCase() + receipt.status.slice(1)}
+                </span>
+              </div>
+
+              <div className="space-y-3 mb-4">
+                <div className="flex items-center text-sm text-gray-600">
+                  <User className="w-4 h-4 mr-2" />
+                  {receipt.student}
+                </div>
+                <div className="flex items-center text-sm text-gray-600">
+                  <MapPin className="w-4 h-4 mr-2" />
+                  Room {receipt.room}
+                </div>
+                <div className="flex items-center text-sm text-gray-600">
+                  <DollarSign className="w-4 h-4 mr-2" />
+                  ₹{receipt.amount.toLocaleString()} - {receipt.type}
+                </div>
+                <div className="flex items-center text-sm text-gray-600">
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  UTR: {receipt.utrId}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex space-x-2">
+                  <button 
+                    onClick={() => handleViewReceipt(receipt)}
+                    className="flex-1 flex items-center justify-center px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    View
+                  </button>
+                  <button 
+                    onClick={() => handleViewDetails(receipt)}
+                    className="flex-1 flex items-center justify-center px-3 py-2 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    Details
+                  </button>
+                </div>
+                
+                {receipt.status === 'pending' && (
+                  <div className="flex space-x-2">
+                    <button 
+                      onClick={() => handleVerifyReceipt(receipt.id)}
+                      className="flex-1 flex items-center justify-center px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors"
+                    >
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Verify
+                    </button>
+                    <button 
+                      onClick={() => handleRejectReceipt(receipt.id)}
+                      className="flex-1 flex items-center justify-center px-3 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors"
+                    >
+                      <XCircle className="w-4 h-4 mr-2" />
+                      Reject
+                    </button>
+                  </div>
+                )}
+                
+                {receipt.status === 'rejected' && (
+                  <button 
+                    onClick={() => handleRejectReceipt(receipt.id)}
+                    className="w-full flex items-center justify-center px-3 py-2 bg-red-50 text-red-700 rounded-lg"
+                  >
+                    <XCircle className="w-4 h-4 mr-2" />
+                    Rejected
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
