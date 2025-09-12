@@ -6,7 +6,7 @@ const LaundryManagement: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [showPrintPreview, setShowPrintPreview] = useState(false);
 
-  const laundryRequests = [
+  const [laundryRequests, setLaundryRequests] = useState([
     {
       id: 'LAU001',
       student: 'Rahul Kumar',
@@ -67,7 +67,7 @@ const LaundryManagement: React.FC = () => {
       pickupTime: '3:00 PM',
       notes: 'Iron all clothes'
     },
-  ];
+  ]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
