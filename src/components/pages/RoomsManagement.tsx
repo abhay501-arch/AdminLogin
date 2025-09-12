@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, Users, MapPin, Edit, Eye, Plus, X, Save, Phone, Mail, UserMinus, UserPlus } from 'lucide-react';
+import { Search, Filter, Users, MapPin, Edit, Eye, Plus, X, Save, Phone, Mail, UserMinus, UserPlus, User } from 'lucide-react';
 
 const RoomsManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -7,7 +7,12 @@ const RoomsManagement: React.FC = () => {
   const [showAddRoomModal, setShowAddRoomModal] = useState(false);
   const [showViewRoomModal, setShowViewRoomModal] = useState(false);
   const [showManageRoomModal, setShowManageRoomModal] = useState(false);
+  const [showAssignStudentModal, setShowAssignStudentModal] = useState(false);
+  const [showReassignStudentModal, setShowReassignStudentModal] = useState(false);
+  const [showRemoveStudentModal, setShowRemoveStudentModal] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState<any>(null);
+  const [selectedBed, setSelectedBed] = useState<number>(0);
+  const [studentSearchTerm, setStudentSearchTerm] = useState('');
   const [newRoom, setNewRoom] = useState({
     roomNumber: '',
     sharingType: 'triple',
@@ -17,6 +22,34 @@ const RoomsManagement: React.FC = () => {
     floor: 1,
     rent: 8000
   });
+
+  // All students data (both assigned and unassigned)
+  const [allStudents, setAllStudents] = useState([
+    { id: 'STU001', name: 'Rahul Kumar', email: 'rahul@email.com', phone: '+91 9876543210', room: 'R101', bed: 1, course: 'B.Tech CSE' },
+    { id: 'STU002', name: 'Priya Sharma', email: 'priya@email.com', phone: '+91 9876543211', room: 'R102', bed: 1, course: 'MBA' },
+    { id: 'STU003', name: 'Amit Singh', email: 'amit@email.com', phone: '+91 9876543212', room: 'R101', bed: 2, course: 'M.Tech' },
+    { id: 'STU004', name: 'Neha Patel', email: 'neha@email.com', phone: '+91 9876543213', room: 'R102', bed: 2, course: 'BBA' },
+    { id: 'STU005', name: 'Vikram Gupta', email: 'vikram@email.com', phone: '+91 9876543214', room: 'R101', bed: 3, course: 'CA' },
+    { id: 'STU006', name: 'Arjun Rao', email: 'arjun@email.com', phone: '+91 9876543215', room: 'R201', bed: 1, course: 'B.Tech EE' },
+    { id: 'STU007', name: 'Karan Malhotra', email: 'karan@email.com', phone: '+91 9876543216', room: 'R201', bed: 2, course: 'MBA' },
+    { id: 'STU008', name: 'Suresh Nair', email: 'suresh@email.com', phone: '+91 9876543217', room: 'R201', bed: 3, course: 'M.Tech' },
+    { id: 'STU009', name: 'Deepika Verma', email: 'deepika@email.com', phone: '+91 9876543218', room: 'R202', bed: 1, course: 'BCA' },
+    { id: 'STU010', name: 'Ravi Kumar', email: 'ravi@email.com', phone: '+91 9876543219', room: null, bed: null, course: 'B.Tech ME' },
+    { id: 'STU011', name: 'Anjali Singh', email: 'anjali@email.com', phone: '+91 9876543220', room: null, bed: null, course: 'MBA' },
+    { id: 'STU012', name: 'Rohit Sharma', email: 'rohit@email.com', phone: '+91 9876543221', room: null, bed: null, course: 'BBA' },
+    { id: 'STU013', name: 'Kavya Patel', email: 'kavya@email.com', phone: '+91 9876543222', room: null, bed: null, course: 'B.Tech CSE' },
+    { id: 'STU014', name: 'Manish Gupta', email: 'manish@email.com', phone: '+91 9876543223', room: null, bed: null, course: 'M.Tech' },
+  ]);
+
+  // Get unassigned students
+  const getUnassignedStudents = () => {
+    return allStudents.filter(student => !student.room);
+  };
+
+  // Get student by room and bed
+  const getStudentByRoomAndBed = (roomId: string, bedNumber: number) => {
+    return allStudents.find(student => student.room === roomId && student.bed === bedNumber);
+  };
 
   const [rooms, setRooms] = useState([
     {
@@ -161,6 +194,143 @@ const RoomsManagement: React.FC = () => {
     setShowManageRoomModal(true);
   };
 
+  const handleAssignStudent = (roomId: string, bedNumber: number) => {
+    setSelectedRoom(rooms.find(room => room.id === roomId));
+    setSelectedBed(bedNumber);
+    setShowAssignStudentModal(true);
+    setStudentSearchTerm('');
+  };
+
+  const handleReassignStudent = (roomId: string, bedNumber: number) => {
+    setSelectedRoom(rooms.find(room => room.id === roomId));
+    setSelectedBed(bedNumber);
+    setShowReassignStudentModal(true);
+    setStudentSearchTerm('');
+  };
+
+  const handleRemoveStudent = (roomId: string, bedNumber: number) => {
+    setSelectedRoom(rooms.find(room => room.id === roomId));
+    setSelectedBed(bedNumber);
+    setShowRemoveStudentModal(true);
+  };
+
+  const confirmAssignStudent = (studentId: string) => {
+    const student = allStudents.find(s => s.id === studentId);
+    if (!student || !selectedRoom) return;
+
+    // Update student's room assignment
+    setAllStudents(allStudents.map(s => 
+      s.id === studentId 
+        ? { ...s, room: selectedRoom.id, bed: selectedBed }
+        : s
+    ));
+
+    // Update room data
+    setRooms(rooms.map(room => {
+      if (room.id === selectedRoom.id) {
+        const updatedStudentDetails = room.studentDetails.map(detail => 
+          detail.bed === selectedBed 
+            ? { name: student.name, id: student.id, email: student.email, phone: student.phone, bed: selectedBed }
+            : detail
+        );
+        const updatedStudents = room.students.map((name, index) => 
+          index + 1 === selectedBed ? student.name : name
+        );
+        const newOccupancy = updatedStudents.filter(name => name !== '').length;
+        const newStatus = newOccupancy === room.capacity ? 'occupied' : newOccupancy > 0 ? 'partial' : 'available';
+        
+        return {
+          ...room,
+          students: updatedStudents,
+          studentDetails: updatedStudentDetails,
+          occupancy: newOccupancy,
+          status: newStatus
+        };
+      }
+      return room;
+    }));
+
+    setShowAssignStudentModal(false);
+  };
+
+  const confirmReassignStudent = (newStudentId: string) => {
+    const newStudent = allStudents.find(s => s.id === newStudentId);
+    const currentStudent = selectedRoom?.studentDetails.find(s => s.bed === selectedBed);
+    if (!newStudent || !selectedRoom || !currentStudent) return;
+
+    // Update both students' room assignments
+    setAllStudents(allStudents.map(s => {
+      if (s.id === newStudentId) {
+        return { ...s, room: selectedRoom.id, bed: selectedBed };
+      } else if (s.id === currentStudent.id) {
+        return { ...s, room: null, bed: null };
+      }
+      return s;
+    }));
+
+    // Update room data
+    setRooms(rooms.map(room => {
+      if (room.id === selectedRoom.id) {
+        const updatedStudentDetails = room.studentDetails.map(detail => 
+          detail.bed === selectedBed 
+            ? { name: newStudent.name, id: newStudent.id, email: newStudent.email, phone: newStudent.phone, bed: selectedBed }
+            : detail
+        );
+        const updatedStudents = room.students.map((name, index) => 
+          index + 1 === selectedBed ? newStudent.name : name
+        );
+        
+        return {
+          ...room,
+          students: updatedStudents,
+          studentDetails: updatedStudentDetails
+        };
+      }
+      return room;
+    }));
+
+    setShowReassignStudentModal(false);
+  };
+
+  const confirmRemoveStudent = () => {
+    const currentStudent = selectedRoom?.studentDetails.find(s => s.bed === selectedBed);
+    if (!currentStudent || !selectedRoom) return;
+
+    // Update student's room assignment
+    setAllStudents(allStudents.map(s => 
+      s.id === currentStudent.id 
+        ? { ...s, room: null, bed: null }
+        : s
+    ));
+
+    // Update room data
+    setRooms(rooms.map(room => {
+      if (room.id === selectedRoom.id) {
+        const updatedStudentDetails = room.studentDetails.map(detail => 
+          detail.bed === selectedBed 
+            ? { name: '', id: '', email: '', phone: '', bed: selectedBed }
+            : detail
+        );
+        const updatedStudents = room.students.map((name, index) => 
+          index + 1 === selectedBed ? '' : name
+        );
+        const newOccupancy = updatedStudents.filter(name => name !== '').length;
+        const newStatus = newOccupancy === room.capacity ? 'occupied' : newOccupancy > 0 ? 'partial' : 'available';
+        
+        return {
+          ...room,
+          students: updatedStudents,
+          studentDetails: updatedStudentDetails,
+          occupancy: newOccupancy,
+          status: newStatus
+        };
+      }
+      return room;
+    }));
+
+    setShowRemoveStudentModal(false);
+  };
+
   const handleAddRoom = () => {
     // In a real app, this would save to database
     console.log('Adding new room:', newRoom);
@@ -189,6 +359,12 @@ const RoomsManagement: React.FC = () => {
     });
   };
 
+  // Filter students for search
+  const filteredUnassignedStudents = getUnassignedStudents().filter(student =>
+    student.name.toLowerCase().includes(studentSearchTerm.toLowerCase()) ||
+    student.email.toLowerCase().includes(studentSearchTerm.toLowerCase()) ||
+    student.id.toLowerCase().includes(studentSearchTerm.toLowerCase())
+  );
 
   return (
     <div className="space-y-6">
@@ -202,6 +378,172 @@ const RoomsManagement: React.FC = () => {
           Add Room
         </button>
       </div>
+
+      {/* Assign Student Modal */}
+      {showAssignStudentModal && selectedRoom && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Assign Student to {selectedRoom.id} - Bed {selectedBed}
+              </h2>
+              <button
+                onClick={() => setShowAssignStudentModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="mb-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search by name, email, or student ID..."
+                  value={studentSearchTerm}
+                  onChange={(e) => setStudentSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {filteredUnassignedStudents.length > 0 ? (
+                filteredUnassignedStudents.map((student) => (
+                  <div key={student.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-medium text-gray-900">{student.name}</h4>
+                        <p className="text-sm text-gray-600">ID: {student.id}</p>
+                        <p className="text-sm text-gray-600">Email: {student.email}</p>
+                        <p className="text-sm text-gray-600">Course: {student.course}</p>
+                      </div>
+                      <button
+                        onClick={() => confirmAssignStudent(student.id)}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                      >
+                        Assign
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <User className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">No unassigned students found</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reassign Student Modal */}
+      {showReassignStudentModal && selectedRoom && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Reassign Student for {selectedRoom.id} - Bed {selectedBed}
+              </h2>
+              <button
+                onClick={() => setShowReassignStudentModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="mb-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search by name, email, or student ID..."
+                  value={studentSearchTerm}
+                  onChange={(e) => setStudentSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {allStudents.filter(student =>
+                student.name.toLowerCase().includes(studentSearchTerm.toLowerCase()) ||
+                student.email.toLowerCase().includes(studentSearchTerm.toLowerCase()) ||
+                student.id.toLowerCase().includes(studentSearchTerm.toLowerCase())
+              ).map((student) => (
+                <div key={student.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-medium text-gray-900">{student.name}</h4>
+                      <p className="text-sm text-gray-600">ID: {student.id}</p>
+                      <p className="text-sm text-gray-600">Email: {student.email}</p>
+                      <p className="text-sm text-gray-600">Course: {student.course}</p>
+                      {student.room && (
+                        <p className="text-sm text-blue-600">Currently in: {student.room} - Bed {student.bed}</p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => confirmReassignStudent(student.id)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                    >
+                      Reassign
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Remove Student Modal */}
+      {showRemoveStudentModal && selectedRoom && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Confirm Removal</h2>
+              <button
+                onClick={() => setShowRemoveStudentModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="mb-6">
+              <p className="text-gray-700">
+                Are you sure you want to remove{' '}
+                <strong>
+                  {selectedRoom.studentDetails.find(s => s.bed === selectedBed)?.name}
+                </strong>{' '}
+                from {selectedRoom.id} - Bed {selectedBed}?
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                This will mark the bed as empty and the student as unassigned.
+              </p>
+            </div>
+            
+            <div className="flex space-x-3">
+              <button
+                onClick={confirmRemoveStudent}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
+              >
+                <UserMinus className="w-4 h-4 inline mr-2" />
+                Remove Student
+              </button>
+              <button
+                onClick={() => setShowRemoveStudentModal(false)}
+                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* View Room Modal */}
       {showViewRoomModal && selectedRoom && (
@@ -402,28 +744,41 @@ const RoomsManagement: React.FC = () => {
                     <div key={index} className="border border-gray-200 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-3">
                         <h4 className="font-medium text-gray-900">Bed {student.bed}</h4>
-                        {student.name ? (
-                          <button className="text-red-600 hover:text-red-800">
-                            <UserMinus className="w-4 h-4" />
-                          </button>
-                        ) : (
-                          <button className="text-green-600 hover:text-green-800">
+                        <div className="flex space-x-2">
+                          <button 
+                            onClick={() => handleAssignStudent(selectedRoom.id, student.bed)}
+                            className="text-green-600 hover:text-green-800"
+                            title="Add Student"
+                          >
                             <UserPlus className="w-4 h-4" />
                           </button>
-                        )}
+                          <button 
+                            onClick={() => handleRemoveStudent(selectedRoom.id, student.bed)}
+                            className="text-red-600 hover:text-red-800"
+                            title="Remove Student"
+                          >
+                            <UserMinus className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                       {student.name ? (
                         <div className="space-y-2">
                           <p className="text-sm font-medium text-gray-900">{student.name}</p>
                           <p className="text-xs text-gray-600">ID: {student.id}</p>
-                          <button className="text-xs text-blue-600 hover:text-blue-800">
+                          <button 
+                            onClick={() => handleReassignStudent(selectedRoom.id, student.bed)}
+                            className="text-xs text-blue-600 hover:text-blue-800"
+                          >
                             Reassign Bed
                           </button>
                         </div>
                       ) : (
                         <div className="space-y-2">
                           <p className="text-sm text-gray-500">No student assigned</p>
-                          <button className="text-xs text-blue-600 hover:text-blue-800">
+                          <button 
+                            onClick={() => handleAssignStudent(selectedRoom.id, student.bed)}
+                            className="text-xs text-blue-600 hover:text-blue-800"
+                          >
                             Assign Student
                           </button>
                         </div>
