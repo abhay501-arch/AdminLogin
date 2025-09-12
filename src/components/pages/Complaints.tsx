@@ -5,7 +5,7 @@ const Complaints: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
 
-  const complaints = [
+  const [complaints, setComplaints] = useState([
     {
       id: 'CMP001',
       student: 'Rahul Kumar',
@@ -66,7 +66,7 @@ const Complaints: React.FC = () => {
       priority: 'low',
       assignedTo: null
     },
-  ];
+  ]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
